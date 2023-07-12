@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @Entity(name= "houseDetail")
 @AllArgsConstructor
 @NoArgsConstructor
+@Table
 public class HouseDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,4 +25,16 @@ public class HouseDetail {
     private BigDecimal price;
     private String imageUpload;
     private HouseStatus houseStatus;
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("HouseDetail{");
+        sb.append("id=").append(id);
+        sb.append(", numberOfBedroom='").append(numberOfBedroom).append('\'');
+        sb.append(", price=").append(price);
+        sb.append(", imageUpload='").append(imageUpload).append('\'');
+        sb.append(", houseStatus=").append(houseStatus);
+        sb.append('}');
+        return sb.toString();
+    }
 }
