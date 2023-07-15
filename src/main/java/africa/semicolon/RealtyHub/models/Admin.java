@@ -12,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name= "admin")
+@Table
 public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,4 +25,14 @@ public class Admin {
     private String lastName;
     private String emailAddress;
 
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Admin{");
+        sb.append("id=").append(id);
+        sb.append(", firstName='").append(firstName).append('\'');
+        sb.append(", lastName='").append(lastName).append('\'');
+        sb.append(", emailAddress='").append(emailAddress).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

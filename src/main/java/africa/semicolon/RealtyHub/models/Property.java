@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Entity(name = "property")
+@Table
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,7 +34,27 @@ public class Property {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime dateUploaded;
-
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private HouseDetail houseDetail;
+
+    @ManyToOne
+    @MapsId("userId")
+    @JoinColumn(name = "user_id",   foreignKey = @ForeignKey(name = "user_id_fk")   )
+    private RealtyHubUser user;
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Property{");
+        sb.append("id=").append(id);
+        sb.append(", streetName='").append(streetName).append('\'');
+        sb.append(", city='").append(city).append('\'');
+        sb.append(", state='").append(state).append('\'');
+        sb.append(", postalCode='").append(postalCode).append('\'');
+        sb.append(", Country='").append(Country).append('\'');
+        sb.append(", dateUploaded=").append(dateUploaded);
+        sb.append(", houseDetail=").append(houseDetail);
+        sb.append(", user=").append(user);
+        sb.append('}');
+        return sb.toString();
+    }
 }
