@@ -1,8 +1,10 @@
 package africa.semicolon.RealtyHub.utils;
 
-import africa.semicolon.RealtyHub.models.RealtyHubUser;
+import africa.semicolon.RealtyHub.models.User;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ import static java.time.Instant.now;
 public class AppUtils {
     public static final String EMAIL_URL="https://api.brevo.com/v3/smtp/email";
 
-    public static final String APP_EMAIL="noreply@realtyhub.africa";
+    public static final String APP_EMAIL="no-reply@realtyhub.africa";
 
     public static final String APP_NAME="realtyhub inc.";
     public static final String EMPTY_SPACE_VALUE = " ";
@@ -34,12 +36,28 @@ public class AppUtils {
     public static final String USER_API_VALUE = "/api/v1/user";
     public static final String CLAIMS_VALUE = "ROLES";
     public static final String LOGIN_ENDPOINT = "/api/v1/login";
+    public static final String USER_DELETED_SUCCESSFULLY = "User deleted successfully";
+    public static final int ONE = 1;
 
     public static final String JWT_SIGNING_SECRET = "${jwt.signing.secret}";
     public static final String USER_WITH_ID_NOT_FOUND = "User with id %s not found";
 
     public static final String ACTIVATE_ACCOUNT_URL = "localhost:8080/api/v1/customer/verify";
-    public static String generateToken(RealtyHubUser user, String secret){
+    private static final int DEFAULT_PAGE_NUMBER = 1 ;
+    private static final int DEFAULT_PAGE_LIMIT = 10;
+    public static final int ZERO = 0;
+
+    public static final String NOT_NULL = "Cannot be null";
+    public static final String NOT_BLANK = "Cannot be blank";
+    private static final String GET_ALL_USERS = "/api/v1/user/all";
+
+    public static Pageable buildPageRequest(int page, int items){
+        if (page<=ZERO) page=DEFAULT_PAGE_NUMBER;
+        if (items<=ZERO) items = DEFAULT_PAGE_LIMIT;
+        page-=ONE;
+        return PageRequest.of(page, items);
+    }
+    public static String generateToken(User user, String secret){
         return JWT.create()
                 .withIssuedAt(now())
                 .withExpiresAt(now().plusSeconds(200L))
@@ -48,7 +66,7 @@ public class AppUtils {
     }
     public static List<String> getAuthWhiteList() {
         return List.of(
-                USER_API_VALUE, LOGIN_ENDPOINT
+                USER_API_VALUE, LOGIN_ENDPOINT, GET_ALL_USERS
         );
     }
 }

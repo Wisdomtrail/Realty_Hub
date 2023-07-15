@@ -1,12 +1,12 @@
 package africa.semicolon.RealtyHub.repositories;
 
-import africa.semicolon.RealtyHub.models.RealtyHubUser;
+import africa.semicolon.RealtyHub.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<RealtyHubUser, Long> {
-    Optional<RealtyHubUser> findById(Long id);
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findById(Long id);
 
 }

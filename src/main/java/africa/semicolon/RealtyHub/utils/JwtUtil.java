@@ -8,6 +8,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Map;
 
 import static africa.semicolon.RealtyHub.utils.AppUtils.CLAIMS_VALUE;
@@ -27,5 +29,12 @@ public class JwtUtil {
     private DecodedJWT validateToken(String token) {
         return JWT.require(Algorithm.HMAC512(secret))
                 .build().verify(token);
+    }
+    public static String generateToken(int length) {
+        byte[] bytes = new byte[length];
+        new SecureRandom().nextBytes(bytes);
+        return Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(bytes);
     }
 }

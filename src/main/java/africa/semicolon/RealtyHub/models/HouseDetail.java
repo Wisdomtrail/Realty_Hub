@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity(name= "houseDetail")
@@ -23,7 +26,7 @@ public class HouseDetail {
     private Long id;
     private String numberOfBedroom;
     private BigDecimal price;
-    private String imageUpload;
+    private List<String> images = new ArrayList<>();
     private HouseStatus houseStatus;
 
     @Override
@@ -32,7 +35,7 @@ public class HouseDetail {
         sb.append("id=").append(id);
         sb.append(", numberOfBedroom='").append(numberOfBedroom).append('\'');
         sb.append(", price=").append(price);
-        sb.append(", imageUpload='").append(imageUpload).append('\'');
+        sb.append(", imageUpload='").append(images).append('\'');
         sb.append(", houseStatus=").append(houseStatus);
         sb.append('}');
         return sb.toString();

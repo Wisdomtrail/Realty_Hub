@@ -40,7 +40,7 @@ public class Property {
     @ManyToOne
     @MapsId("userId")
     @JoinColumn(name = "user_id",   foreignKey = @ForeignKey(name = "user_id_fk")   )
-    private RealtyHubUser user;
+    private User user;
 
     @Override
     public String toString() {

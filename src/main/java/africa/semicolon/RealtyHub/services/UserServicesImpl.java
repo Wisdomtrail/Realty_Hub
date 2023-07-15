@@ -1,17 +1,15 @@
 package africa.semicolon.RealtyHub.services;
 
-import africa.semicolon.RealtyHub.dtos.requests.EmailNotificationRequest;
-import africa.semicolon.RealtyHub.dtos.requests.Recipient;
-import africa.semicolon.RealtyHub.dtos.requests.Sender;
-import africa.semicolon.RealtyHub.dtos.requests.UserRegistrationRequest;
+import africa.semicolon.RealtyHub.dtos.requests.*;
 import africa.semicolon.RealtyHub.dtos.response.ApiResponse;
+import africa.semicolon.RealtyHub.dtos.response.InitResponse;
 import africa.semicolon.RealtyHub.dtos.response.UserRegistrationResponse;
 import africa.semicolon.RealtyHub.dtos.response.UserResponse;
 import africa.semicolon.RealtyHub.exceptions.RealtyHubException;
 import africa.semicolon.RealtyHub.exceptions.UserNotFoundException;
 import africa.semicolon.RealtyHub.exceptions.UserResgistrationFailedException;
 import africa.semicolon.RealtyHub.models.BioData;
-import africa.semicolon.RealtyHub.models.RealtyHubUser;
+import africa.semicolon.RealtyHub.models.User;
 import africa.semicolon.RealtyHub.repositories.UserRepository;
 import africa.semicolon.RealtyHub.services.notification.mail.MailServices;
 import africa.semicolon.RealtyHub.utils.JwtUtil;
@@ -21,6 +19,8 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +29,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,14 +48,14 @@ import static africa.semicolon.RealtyHub.utils.ResponseUtils.USER_REGISTRATION_S
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     @Override
-    public UserRegistrationResponse register(UserRegistrationRequest userRegistrationRequest) throws UserResgistrationFailedException, RealtyHubException {
+    public UserRegistrationResponse register(UserRegistrationRequest userRegistrationRequest) throws RealtyHubException {
         BioData bioData = modelMapper.map(userRegistrationRequest, BioData.class);
         bioData.setPassword(passwordEncoder.encode(bioData.getPassword()));
         bioData.setRoles(new HashSet<>());
-        RealtyHubUser user = new RealtyHubUser();
+        User user = new User();
         user.setBioData(bioData);
         bioData.getRoles().add(USER);
-        RealtyHubUser savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(user);
         EmailNotificationRequest emailRequest = buildEmailRequest(savedUser);
         mailServices.sendMail(emailRequest);
        return buildUserRegistrationResponse(savedUser.getId());
@@ -69,7 +70,7 @@ import static africa.semicolon.RealtyHub.utils.ResponseUtils.USER_REGISTRATION_S
 
     }
 
-    private EmailNotificationRequest buildEmailRequest(RealtyHubUser user) throws RealtyHubException {
+    private EmailNotificationRequest buildEmailRequest(User user) throws RealtyHubException {
         String token = generateToken(user, jwtUtil.getSecret());
     EmailNotificationRequest request = new EmailNotificationRequest();
     Sender sender = new Sender(APP_NAME, APP_EMAIL);
@@ -78,7 +79,7 @@ import static africa.semicolon.RealtyHub.utils.ResponseUtils.USER_REGISTRATION_S
     request.setRecipients(Set.of(recipient));
     request.setSubject(ACTIVATION_LINK_VALUE);
     String template = getEmailTemplate();
-    request.setContent(String.format(template, FRONTEND_BASE_URL+"/customer/verify?token="+token));
+    request.setContent(String.format(template, FRONTEND_BASE_URL+"/user/verify?token="+token));
     return request;
     }
     private String getEmailTemplate() throws RealtyHubException {
@@ -97,10 +98,21 @@ import static africa.semicolon.RealtyHub.utils.ResponseUtils.USER_REGISTRATION_S
     }
 
     @Override
-    public UserResponse getUserById(Long id) {
-        return null;
+    public UserResponse getUserById(Long id) throws UserNotFoundException {
+        Optional<User> foundUser =userRepository.findById(id);
+        User realtyHubUser = foundUser.orElseThrow(() -> new UserNotFoundException(
+        String.format(USER_WITH_ID_NOT_FOUND, id)
+        ));
+        return buildUserResponse(realtyHubUser);
     }
-
+private static UserResponse buildUserResponse(User user){
+    return UserResponse.builder()
+            .id(user.getId())
+            .email(user.getBioData().getEmail())
+            .name(user.getFirstName()+EMPTY_SPACE_VALUE+user.getLastName())
+            .profileImage(user.getProfileImage())
+                    .build();
+}
     @Override
     public ApiResponse<?> verifyUser(String token) throws RealtyHubException {
         DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(jwtUtil.getSecret().getBytes()))
@@ -108,7 +120,7 @@ import static africa.semicolon.RealtyHub.utils.ResponseUtils.USER_REGISTRATION_S
         if (decodedJWT == null) throw new RealtyHubException(ACCOUNT_VERIFICATION_FAILED);
         Claim claim = decodedJWT.getClaim(ID);
         Long id = claim.asLong();
-        RealtyHubUser foundUser = userRepository.findById(id)
+        User foundUser = userRepository.findById(id)
                 .orElseThrow(()-> new UserNotFoundException(
                         String.format(USER_WITH_ID_NOT_FOUND, id)));
         foundUser.getBioData().setIsEnabled(true);
@@ -120,16 +132,25 @@ import static africa.semicolon.RealtyHub.utils.ResponseUtils.USER_REGISTRATION_S
 
     @Override
     public List<UserResponse> getAllUsers(int page, int items) {
-        return null;
+        Pageable pageable =buildPageRequest(page, items);
+        System.out.println(userRepository.findAll());
+        Page<User> userPage =userRepository.findAll(pageable);
+        List<User> users = userPage.getContent();
+        return users.stream()
+                .map(UserServicesImpl::buildUserResponse)
+                .toList();
     }
 
     @Override
     public ApiResponse<?> deleteUser(long id) {
-        return null;
+        userRepository.deleteById(id);
+        return ApiResponse.builder()
+                .message(USER_DELETED_SUCCESSFULLY)
+                .build();
     }
 
     @Override
     public void deleteAll() {
-
+        userRepository.deleteAll();
     }
 }

@@ -3,7 +3,7 @@
                   background-color: rgb(38, 38, 192);
                   color: white;
                   height: 50px;
-                  width: 100px;
+                  width: 95px;
                   border-radius: 25px;
                   border: none;
                   box-shadow: 0cap 35px 0 black;
@@ -13,8 +13,11 @@
   </style>
 
 <p>
-      You are one click away from activating your account,
-      kindly press the button below to complete your registration.
+     Hello,
+     You’re almost ready to start enjoying RealtyHub.
+
+     Simply click the big button below to verify your email address.
+
       </br>
       <a href="%s">
           <button>
