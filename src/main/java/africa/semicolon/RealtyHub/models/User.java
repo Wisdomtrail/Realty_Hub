@@ -22,10 +22,10 @@ import java.util.List;
     private Long id;
     private String firstName;
     private String lastName;
-
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private BioData bioData;
     private String profileImage;
+    private String phoneNumber;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timeCreated;
@@ -53,18 +53,7 @@ import java.util.List;
         this.savedProperties = savedProperties;
     }
 
-    public void addProperty(Property property){
-        if(!this.savedProperties.contains(property)){
-            this.savedProperties.add(property);
-            property.setUser(this);
-        }
-    }
-    public void removeProperty(Property property){
-        if(this.savedProperties.contains(property)){
-            this.savedProperties.remove(property);
-            property.setUser(null);
-        }
-    }
+
 
     @Override
     public String toString() {

@@ -23,4 +23,5 @@ public class BioData {
     private Boolean isEnabled;
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Role> roles;
+
 }

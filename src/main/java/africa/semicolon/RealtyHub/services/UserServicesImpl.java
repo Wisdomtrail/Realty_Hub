@@ -1,13 +1,9 @@
 package africa.semicolon.RealtyHub.services;
 
 import africa.semicolon.RealtyHub.dtos.requests.*;
-import africa.semicolon.RealtyHub.dtos.response.ApiResponse;
-import africa.semicolon.RealtyHub.dtos.response.InitResponse;
-import africa.semicolon.RealtyHub.dtos.response.UserRegistrationResponse;
-import africa.semicolon.RealtyHub.dtos.response.UserResponse;
+import africa.semicolon.RealtyHub.dtos.response.*;
 import africa.semicolon.RealtyHub.exceptions.RealtyHubException;
 import africa.semicolon.RealtyHub.exceptions.UserNotFoundException;
-import africa.semicolon.RealtyHub.exceptions.UserResgistrationFailedException;
 import africa.semicolon.RealtyHub.models.BioData;
 import africa.semicolon.RealtyHub.models.User;
 import africa.semicolon.RealtyHub.repositories.UserRepository;
@@ -67,21 +63,21 @@ import static africa.semicolon.RealtyHub.utils.ResponseUtils.USER_REGISTRATION_S
                 .build().verify(token);
         if (decodedJWT==null) throw new RealtyHubException("):");
         return ApiResponse.builder().message("Account Verified").build();
-
     }
 
     private EmailNotificationRequest buildEmailRequest(User user) throws RealtyHubException {
         String token = generateToken(user, jwtUtil.getSecret());
-    EmailNotificationRequest request = new EmailNotificationRequest();
-    Sender sender = new Sender(APP_NAME, APP_EMAIL);
-    Recipient recipient = new Recipient(user.getFirstName(), user.getBioData().getEmail());
-    request.setEmailSender(sender);
-    request.setRecipients(Set.of(recipient));
-    request.setSubject(ACTIVATION_LINK_VALUE);
-    String template = getEmailTemplate();
-    request.setContent(String.format(template, FRONTEND_BASE_URL+"/user/verify?token="+token));
-    return request;
+        EmailNotificationRequest request = new EmailNotificationRequest();
+        Sender sender = new Sender(APP_NAME, APP_EMAIL);
+        Recipient recipient = new Recipient(user.getFirstName(), user.getBioData().getEmail());
+        request.setEmailSender(sender);
+        request.setRecipients(Set.of(recipient));
+        request.setSubject(ACTIVATION_LINK_VALUE);
+        String template = getEmailTemplate();
+        request.setContent(String.format(template, FRONTEND_BASE_URL+"/user/verify?token="+token));
+        return request;
     }
+
     private String getEmailTemplate() throws RealtyHubException {
         try(BufferedReader reader =
                     new BufferedReader(new FileReader(MAIL_TEMPLATE_LOCATION))){
@@ -140,6 +136,51 @@ private static UserResponse buildUserResponse(User user){
                 .map(UserServicesImpl::buildUserResponse)
                 .toList();
     }
+
+    private void sendEmailNotification(User requestedUser, String subject, String content) {
+        EmailNotificationRequest emailNotificationRequest = new EmailNotificationRequest();
+        String userRequestedEmail = requestedUser.getBioData().getEmail();
+        Sender sender = new Sender(APP_NAME, APP_EMAIL);
+        Recipient recipient = new Recipient(requestedUser.getFirstName(), userRequestedEmail);
+        emailNotificationRequest.setEmailSender(sender);
+        emailNotificationRequest.setRecipients(Set.of(recipient));
+        emailNotificationRequest.setSubject(subject);
+        emailNotificationRequest.setContent(content);
+        mailServices.sendMail(emailNotificationRequest);
+    }
+
+    @Override
+    public RequestSharingResponse requestSharing(RequestSharingRequest request) {
+        request(request.getRequestingUser(), request.getRequestedUser(), REQUEST_FOR_SHARING);
+        return buildRequestSharingResponse();
+    }
+
+    private RequestSharingResponse buildRequestSharingResponse() {
+        RequestSharingResponse response = new RequestSharingResponse();
+        response.setMessage(REQUEST_FOR_SHARING_SENT_SUCCESSFULLY);
+        return response;
+    }
+
+    @Override
+    public RequestInspectionResponse requestInspection(RequestInspectionRequest request) {
+        request(request.getRequestingUser(), request.getRequestedUser(), REQUEST_FOR_INSPECTION);
+        return buildRequestInspectionResponse();
+    }
+
+    private void request(User requestingUser, User requestedUser, String requestForInspection) {
+        String userRequestingEmail = requestingUser.getBioData().getEmail();
+        String subject = String.format(requestForInspection, userRequestingEmail);
+        String content = String.format(USER_INFORMATION, requestingUser.getFirstName(), requestingUser.getLastName(),
+                requestingUser.getBioData().getEmail());
+        sendEmailNotification(requestedUser, subject, content);
+    }
+
+    private RequestInspectionResponse buildRequestInspectionResponse() {
+        RequestInspectionResponse response = new RequestInspectionResponse();
+        response.setMessage(REQUEST_FOR_INSPECTION_SENT_SUCCESSFULLY);
+        return response;
+    }
+
 
     @Override
     public ApiResponse<?> deleteUser(long id) {

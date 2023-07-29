@@ -45,4 +45,5 @@ public class SecurityConfig {
                 .authorizeHttpRequests(c->c.anyRequest().authenticated())
                 .build();
     }
+
 }

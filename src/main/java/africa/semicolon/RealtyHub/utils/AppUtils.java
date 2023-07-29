@@ -14,7 +14,7 @@ public class AppUtils {
     public static final String EMAIL_URL="https://api.brevo.com/v3/smtp/email";
 
     public static final String APP_EMAIL="no-reply@realtyhub.africa";
-
+    public static final String REQUEST_FOR_SHARING = "%s Is requesting for a Share";
     public static final String APP_NAME="realtyhub inc.";
     public static final String EMPTY_SPACE_VALUE = " ";
     public static final String ACCESS_TOKEN_VALUE = "access_token";
@@ -29,7 +29,7 @@ public class AppUtils {
     public static final String SUBJECT = "subject";
     public static final String TOKEN_PREFIX="Bearer ";
     public static final String CLAIM_VALUE = "claim";
-    public static final String MAIL_TEMPLATE_LOCATION = "C:\\Users\\ADMIN\\Downloads\\RealtyHub\\src\\main\\resources\\static\\activation.txt";
+    public static final String MAIL_TEMPLATE_LOCATION = "C:\\Users\\sunep\\Desktop\\RealtyHub\\src\\main\\resources\\static\\activation.txt";
     public static final String ACTIVATION_LINK_VALUE = "Activation Link";
     public static final String FRONTEND_BASE_URL = "https://www.realtyhub.com";
     public static final String ID = "id";
@@ -50,6 +50,14 @@ public class AppUtils {
     public static final String NOT_NULL = "Cannot be null";
     public static final String NOT_BLANK = "Cannot be blank";
     private static final String GET_ALL_USERS = "/api/v1/user/all";
+    public static final String REQUEST_FOR_SHARING_SENT_SUCCESSFULLY = "REQUEST_FOR_SHARING_SENT_SUCCESSFULLY";
+    public static final String REQUEST_FOR_INSPECTION_SENT_SUCCESSFULLY = "REQUEST_FOR_INSPECTION_SENT_SUCCESSFULLY";
+    public static final String REQUEST_FOR_INSPECTION = "%s is requesting for A tour";
+    public static final String USER_INFORMATION = """
+            USER  INFORMATION
+            FirstName: %s
+            LastName: %s
+            Email: %s""";
 
     public static Pageable buildPageRequest(int page, int items){
         if (page<=ZERO) page=DEFAULT_PAGE_NUMBER;

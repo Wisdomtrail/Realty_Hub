@@ -1,8 +1,8 @@
 package africa.semicolon.RealtyHub.services;
 
-import africa.semicolon.RealtyHub.Securityyyyyy.User.RealtyHubUser;
 import africa.semicolon.RealtyHub.models.BioData;
 import africa.semicolon.RealtyHub.repositories.BioDataRepository;
+import africa.semicolon.RealtyHub.security.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +22,6 @@ public class RealtyHubBioDataService implements UserDetailsService {
         BioData bioData = bioDataRepository.findByEmail(email).orElseThrow(()->new UsernameNotFoundException(
                 String.format(USER_WITH_EMAIL_NOT_FOUND, email)
         ));
-        return new RealtyHubUser(bioData);
+        return new User(bioData);
     }
 }

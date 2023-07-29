@@ -1,8 +1,6 @@
 package africa.semicolon.RealtyHub.services;
 
-import africa.semicolon.RealtyHub.dtos.requests.InitRequest;
-import africa.semicolon.RealtyHub.dtos.requests.LoginUserRequest;
-import africa.semicolon.RealtyHub.dtos.requests.UserRegistrationRequest;
+import africa.semicolon.RealtyHub.dtos.requests.*;
 import africa.semicolon.RealtyHub.dtos.response.*;
 import africa.semicolon.RealtyHub.exceptions.RealtyHubException;
 import africa.semicolon.RealtyHub.exceptions.UserNotFoundException;
@@ -19,6 +17,9 @@ public interface UserService {
         ApiResponse<?> verifyUser(String token) throws RealtyHubException;
 
         List<UserResponse> getAllUsers(int page, int items);
+
+        RequestSharingResponse requestSharing(RequestSharingRequest request);
+        RequestInspectionResponse requestInspection(RequestInspectionRequest request);
 
         ApiResponse<?> deleteUser(long id);
 
